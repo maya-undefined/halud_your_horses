@@ -49,7 +49,22 @@ echo "[jsdev-fork] Forking ${SRC_IMAGE_TAG} -> ${NEW_IMAGE_TAG}"
 "$OCI_BIN" tag "${SRC_IMAGE_TAG}" "${NEW_IMAGE_TAG}"
 
 # Switch project to use the new tag by default
-echo "${NEW_IMAGE_TAG}" > "${PROJECT_DIR}/.jsdev-image"
+IMAGE_FILE="${PROJECT_DIR}/.jsdev-image"
+
+# Refuse to overwrite if it's a symlink (could point outside the project)
+if [ -L "$IMAGE_FILE" ]; then
+  echo "[jsdev-fork] ERROR: $IMAGE_FILE is a symlink; refusing to overwrite." >&2
+  echo "[jsdev-fork]        Remove or replace it with a regular file and re-run." >&2
+  exit 1
+fi
+
+# Also refuse if it exists and is not a regular file
+if [ -e "$IMAGE_FILE" ] && [ ! -f "$IMAGE_FILE" ]; then
+  echo "[jsdev-fork] ERROR: $IMAGE_FILE exists but is not a regular file; refusing to overwrite." >&2
+  exit 1
+fi
+
+echo "${NEW_IMAGE_TAG}" > "$IMAGE_FILE"
 
 echo "[jsdev-fork] Updated ${PROJECT_DIR}/.jsdev-image to ${NEW_IMAGE_TAG}"
 echo "[jsdev-fork] Next: jsdev-shell.sh ${PROJECT_DIR}"

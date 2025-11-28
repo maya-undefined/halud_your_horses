@@ -122,7 +122,22 @@ fi
 
 
 # 3. Remember the image tag for this project
-echo "${IMAGE_TAG}" > "${PROJECT_DIR}/.jsdev-image"
+IMAGE_FILE="${PROJECT_DIR}/.jsdev-image"
+
+# Refuse to overwrite if it's a symlink (could point outside the project)
+if [ -L "$IMAGE_FILE" ]; then
+  echo "[jsdev-init] ERROR: $IMAGE_FILE is a symlink; refusing to overwrite." >&2
+  echo "[jsdev-init]        Remove or replace it with a regular file and re-run." >&2
+  exit 1
+fi
+
+# Also refuse if it exists and is not a regular file
+if [ -e "$IMAGE_FILE" ] && [ ! -f "$IMAGE_FILE" ]; then
+  echo "[jsdev-init] ERROR: $IMAGE_FILE exists but is not a regular file; refusing to overwrite." >&2
+  exit 1
+fi
+
+echo "${IMAGE_TAG}" > "$IMAGE_FILE"
 
 # 4. Initial build (passing base image as build-arg)
 echo "[jsdev-init] Building image ${IMAGE_TAG} from ${PROJECT_DIR}"
