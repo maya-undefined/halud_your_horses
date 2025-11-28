@@ -1,4 +1,4 @@
-Halud Your Horses is a small containerized development workflow designed to reduce exposure to supply-chain attacks in the 
+HALUD YOUR HORSES is a small containerized development workflow designed to reduce exposure to supply-chain attacks in the 
 JavaScript and Node.js ecosystem. Every project runs inside an isolated container with its own node_modules volume. Nothing from 
 npm executes directly on the host machine. The tools are simple shell scripts that create, enter, and fork project-specific 
 development images.
@@ -63,7 +63,12 @@ jsdev-fork.sh . newimagename
 ```
 
 
-This produces a separate image that inherits the environment from the project’s current image.
+This produces a separate image that inherits the environment from the project’s current image. Let's
+say we want to create a new container image called `new_fork`. You then reuse this newly forked image as
+
+```
+JSDEV_BASE_IMAGE="newimagename" jsdev-init.sh new_fork
+```
 
 
 ## Using Dockerfile Extensions
